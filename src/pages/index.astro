@@ -37,7 +37,7 @@ const posts = (await getCollection('blog')).sort(
 								<FormattedDate date={post.data.pubDate} />
 							</p>
 							<p class="excerpt">{post.data.description}</p>
-							<a href={`/blog/${post.id}/`} class="read-more">
+							<a href={`/blog/${post.id}/`} class="read-more" aria-label={`Read more about ${post.data.title}`}>
 								Read more →
 							</a>
 						</article>
@@ -60,7 +60,7 @@ const posts = (await getCollection('blog')).sort(
 		letter-spacing: 0.15em;
 		margin-bottom: 1rem;
 	}
-	h1 {
+	.hero h1 {
 		margin-bottom: 1.25rem;
 	}
 	.description {
