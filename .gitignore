@@ -23,3 +23,7 @@ pnpm-debug.log*
 # jetbrains setting folder
 .idea/
 .vercel
+
+# superpowers specs, plans, and brainstorm sessions
+docs/superpowers/
+.superpowers/

@@ -1,7 +1,9 @@
 ---
+import { Image } from 'astro:assets';
 import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
+import grahamPhoto from '../assets/graham.jpeg';
 ---
 
 <!doctype html>
@@ -12,7 +14,10 @@ import Header from '../components/Header.astro';
 	<body>
 		<Header />
 		<main>
-			<p class="label">About</p>
+			<div class="intro">
+				<Image src={grahamPhoto} alt="Graham Jackson" class="photo" width={120} height={120} />
+				<p class="label">About</p>
+			</div>
 
 			<blockquote>
 				"The software engineering world is shifting — some of it is genuine, material change. Some of it is hype. Telling the difference is the hard part."
@@ -36,10 +41,6 @@ import Header from '../components/Header.astro';
 				When he's not thinking about AI and engineering, Graham is watching hockey or being supervised by two Labrador Retrievers.
 			</p>
 
-			<div class="links">
-				<a href="https://www.linkedin.com/in/gjackson2013" target="_blank" rel="noopener noreferrer">LinkedIn →</a>
-				<a href="https://github.com/gjackson12" target="_blank" rel="noopener noreferrer">GitHub →</a>
-			</div>
 		</main>
 		<Footer />
 	</body>
@@ -52,28 +53,28 @@ import Header from '../components/Header.astro';
 		margin: auto;
 		padding: 3em 1em;
 	}
+	.intro {
+		display: flex;
+		align-items: center;
+		gap: 1.25rem;
+		margin-bottom: 1.5rem;
+	}
+	.photo {
+		width: 80px;
+		height: 80px;
+		border-radius: 50%;
+		object-fit: cover;
+		flex-shrink: 0;
+	}
 	.label {
 		font-size: 0.65rem;
 		color: var(--accent);
 		text-transform: uppercase;
 		letter-spacing: 0.15em;
-		margin-bottom: 1rem;
+		margin: 0;
 	}
 	.personal {
 		color: rgb(var(--gray));
 		font-size: 0.9em;
-	}
-	.links {
-		display: flex;
-		gap: 1.5rem;
-		font-size: 0.85em;
-		margin-top: 1rem;
-	}
-	.links a {
-		color: var(--accent);
-		text-decoration: none;
-	}
-	.links a:hover {
-		text-decoration: underline;
 	}
 </style>
