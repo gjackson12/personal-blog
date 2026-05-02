@@ -1,62 +1,43 @@
-# Astro Starter Kit: Blog
+# Eventual Consistency
 
-```sh
-npm create astro@latest -- --template blog
+My personal blog. I write about AI and what it's actually doing to software development, engineering craft, and leadership when the ground won't stop moving. No clean answers. Just the work.
+
+Built with [Astro](https://astro.build), deployed on Vercel.
+
+## Commands
+
+Run from the project root:
+
+| Command             | Action                                      |
+| :------------------ | :------------------------------------------ |
+| `npm install`       | Install dependencies                        |
+| `npm run dev`       | Start local dev server at `localhost:4321`  |
+| `npm run build`     | Build for production to `./dist/`           |
+| `npm run preview`   | Preview the production build locally        |
+
+## Writing a Post
+
+Add a `.md` or `.mdx` file to `src/content/blog/`. The frontmatter schema:
+
+```md
+---
+title: 'Post title'
+description: 'One or two sentences. This shows up in SEO and the post list.'
+pubDate: 'Mon DD YYYY'
+---
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## Deploying
 
-Features:
+Pushing to `master` triggers a Vercel deployment automatically. Run `npm run build` first if you want to sanity-check the build locally before pushing.
 
-- ✅ Minimal styling (make it your own!)
-- ✅ 100/100 Lighthouse performance
-- ✅ SEO-friendly with canonical URLs and Open Graph data
-- ✅ Sitemap support
-- ✅ RSS Feed support
-- ✅ Markdown & MDX support
+## Project Structure
 
-## 🚀 Project Structure
-
-Inside of your Astro project, you'll see the following folders and files:
-
-```text
-├── public/
-├── src/
-│   ├── components/
-│   ├── content/
-│   ├── layouts/
-│   └── pages/
-├── astro.config.mjs
-├── README.md
-├── package.json
-└── tsconfig.json
 ```
-
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
-
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
-
-The `src/content/` directory contains "collections" of related Markdown and MDX documents. Use `getCollection()` to retrieve posts from `src/content/blog/`, and type-check your frontmatter using an optional schema. See [Astro's Content Collections docs](https://docs.astro.build/en/guides/content-collections/) to learn more.
-
-Any static assets, like images, can be placed in the `public/` directory.
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Check out [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
-
-## Credit
-
-This theme is based off of the lovely [Bear Blog](https://github.com/HermanMartinus/bearblog/).
+src/
+  content/blog/   ← posts go here
+  pages/          ← index, about, rss, etc.
+  components/     ← shared layout pieces
+  layouts/        ← page wrappers
+public/           ← static assets
+```

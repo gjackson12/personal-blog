@@ -3,4 +3,6 @@
 
 export const SITE_TITLE = 'Eventual Consistency';
 export const SITE_DESCRIPTION =
-	"In distributed systems, eventual consistency means the data gets there — just not all at once. That's also how careers work. This is one engineer's honest account of adapting to AI, rethinking what it means to write good software, and figuring out what leadership looks like when the ground keeps shifting.";
+	"In distributed systems, eventual consistency means the data gets there, just not all at once. Careers work the same way. " +
+	"This is my account as we leverage AI more in our day to day workflow, rethinking what good software actually means, and figuring out what leadership looks like when the ground won't stop moving. " +
+	"No clean answers. Just the work.";

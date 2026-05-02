@@ -4,50 +4,58 @@ description: "Context windows are continuing to grow to 1M+ tokens. Teams are st
 pubDate: 'Apr 22 2026'
 ---
 
-These demos always look great, and honestly, I get why the pattern is spreading. Context windows are genuinely up to a million tokens now, and if you can just stuff your entire document set into a prompt and skip the retrieval pipeline altogether — no vector database, no chunking strategy, no infrastructure to babysit — why wouldn't you? That's not a dumb question. For a lot of teams it's actually the right call, at least for a while.
+Context windows keep getting bigger and bigger these days. As a result, more and more people seem to be confusing it with a database when they stuff an entire document into their prompt. I get the desire to skip a retrieval pipeline because it keeps things simple when you don't need a vector database, a chunking strategy, or infrastructure overhead but…it's a bad idea.
 
-The problem is that most teams don't figure out when "a while" ends until something breaks in production.
+It can work for some scenarios but in the long run it always seems to catch up with you and when it does…something goes terribly wrong in production.
 
-## Why This Pattern Exists
+As I said, I get it, it makes sense. Simple seems to be the better route at first. Retrieval pipelines add overhead both from a design and management perspective, and mean that you have to make decisions that you may not know how to make:
 
-The stack simplification argument is genuinely compelling. Building a retrieval pipeline means making a lot of decisions upfront: how to chunk documents, which embedding model to use, how to manage a vector database, how to tune retrieval quality. All of that takes time, introduces new failure points, and requires expertise your team may not have yet.
+What embedding model do I use? How do you manage a vector database? How do you chunk documents? How to tune it all so that it runs smoothly?
 
-The vendors have every reason to push this. "Just use our 1M token context window" is a much easier pitch than "spend a few weeks building a proper retrieval layer." And for a lot of use cases — internal tools with a small document set, prototypes, low-traffic applications with a stable document corpus — it works. The tradeoffs are real but manageable.
+It doesn't help the situation that vendors make it seem like you don't need to think about any of this because they make it seem like the 1 million token context is a silver bullet at first, and the demos wow you. And honestly, for a lot of use cases they may not be wrong such as tools with a small document set, prototypes, and applications with a stable document corpus overall that has low traffic.
 
-The issue isn't that this pattern is wrong. It's that it has a failure envelope, and most teams don't think about where that envelope is until they're already past it.
-
-## What Actually Breaks
+It's a slippery slope.
 
 The failure modes are predictable enough that you can roughly order them by when teams tend to hit them — first on the bill, then on quality, then in a post-incident review.
 
-### Cost and latency at scale
+## Cost and latency at scale
 
-A million token context window is impressive. It's also expensive. Running a million tokens through a model costs real money per request, and that math looks very different when you go from a demo with a handful of users to a production system with real traffic. Latency is its own problem — bigger contexts take longer to process, which is fine when you're testing but noticeable when users are waiting. This is usually the first failure mode teams hit, and it's at least visible on a dashboard.
+A million context token window is impressive but it's also expensive to process. Running a million tokens through a model will cost you per request, and as you scale it quickly adds up.
 
-### Attention degradation
+Also, larger context windows take longer to process, which is fine and dandy when you are testing, but will become noticeable for your users as they sit and wait. This is typically the first failure mode teams hit and is the easiest one to avoid if you pay attention to your monitoring.
 
-Models don't read long contexts the way a human reads a document. There's a well-documented phenomenon where content in the middle of a long context gets underweighted — the model attends more reliably to content at the beginning and end. So you can stuff a thousand documents into a prompt, and the model will systematically underweight large chunks of them. The failure here is subtle: the system doesn't break, it just gives worse answers in ways that are hard to attribute without knowing where to look. Teams usually chalk it up to prompt engineering or model quality, and iterate in the wrong direction for weeks before figuring out what's actually happening.
+## Attention degradation
 
-### Stale data, no update path
+Models don't read context the way you do. There's a well-documented phenomenon where content buried in the middle of a long context gets underweighted, meaning the model pays more attention to what's at the beginning and the end. So you can stuff tons of documents in there and the model will silently ignore large chunks of them.
 
-When you stuff a document set into a prompt, you're stuffing a snapshot. Documents change. Policies get updated, products get discontinued, procedures get revised. In a retrieval pipeline, there's a layer you can update — re-index the document, update the embedding, set an expiry. With context stuffing, there's no equivalent mechanism. The model just keeps using the stale version, and there's nothing in the system to tell you or the model that something has changed.
+The problem is that nothing breaks. The system keeps running. It just gives worse answers in ways that are hard to pin down unless you know exactly where to look. Most teams don't. They spend weeks tweaking prompts and questioning the model before they finally figure out what's actually happening.
 
-### No observability
+## Stale data, no update path
 
-This one shows up later, usually after the first production incident. When the model gets something wrong — and it will — you want to know why. Which documents did it actually use? With a retrieval pipeline, you at least have a record of what was retrieved. With context stuffing, you have none of that. The entire context was available, the model synthesized something from it, and when the answer is wrong, debugging means guessing.
+When you stuff documents into a prompt, you're stuffing a snapshot. That's fine until documents change, and they always do. Policies get updated. Products get discontinued. Procedures get revised.
 
-## Before You Commit to an Architecture
+With a retrieval pipeline, you have something to update. Re-index the document, refresh the embedding, set an expiry. With context stuffing, you have none of that. The model just keeps using the old version and nothing in the system flags it. Users just get wrong answers delivered.
 
-It's worth thinking through a few questions before you default to context stuffing.
+## No observability
 
-**How often do your documents change?** If the answer is "rarely," and you have a mechanism for refreshing the context when they do, stuffing is probably fine. If documents are updated frequently or by multiple teams, you want a retrieval layer with proper invalidation.
+This one usually shows up after the first production incident (trust me, it will).
 
-**How much traffic are you expecting?** If this is an internal tool with light usage, the cost math may be entirely acceptable. If you're building something user-facing at any real scale — even a few hundred requests a day — run the numbers before you commit to an architecture.
+When something goes wrong, and it will, you want to know why. Which documents did the model actually use? What did it draw on? With a retrieval pipeline, you at least have a record. With context stuffing, you have nothing. The whole context was available, the model did something with it, and now you're debugging by guessing.
 
-**Do you need to audit what the model used?** If you'll ever need to debug a production incident, the answer matters. You'll want a record of what information the model actually drew on. Regulated industries and explainability requirements just make this non-negotiable — but even outside those contexts, "debugging means guessing" is a bad place to be.
+That's a bad place to be.
 
-**How many documents are you actually working with?** Ten documents is different from five hundred. The attention degradation problem is real but manageable at small scale. It becomes a real accuracy problem as the document count grows.
+Before you commit to a final architecture, ask yourself four questions:
 
-If you answered "stable documents, light traffic, no audit requirements, small document set" — context stuffing is probably the right call, at least to start. If you can't check all four of those boxes, you're probably going to want a retrieval pipeline sooner than you think.
+**How often do your documents change?** Rarely, with a clear refresh process? Stuffing is probably fine. Frequently, or by multiple teams? You want a retrieval layer with proper invalidation.
 
-Context stuffing isn't a mistake. It's a reasonable starting point that a lot of teams are going to outgrow, and the teams that do best with it are the ones who went in knowing what they were trading away. Know your failure modes, run the numbers before you scale, and build the retrieval layer before you need it rather than after.
+**How much traffic are you expecting?** Internal tool with light usage, the cost math may work. User-facing at any real scale, even a few hundred requests a day, run the numbers before you commit. The total cost may surprise you.
+
+**Do you need to audit what the model used?** If you'll ever need to debug a production incident, the answer is yes. Regulated industries make it non-negotiable (financial institutions, etc.).
+
+**How many documents are you actually working with?** Ten is different from one hundred. The attention problem is manageable at a small-ish scale. It becomes a real problem as that number grows.
+
+Stable documents. Light traffic. No audit requirements. Small document set. Check all four and context stuffing is probably the right call, at least to start. Can't check all four? You're going to want a retrieval pipeline sooner than you think.
+
+Context stuffing isn't wrong. It's a reasonable starting point that a lot of teams are going to outgrow. The ones that do it well are the ones who went in knowing what they were trading away.
+
+Know the failure modes. Run the numbers before you scale. Build the retrieval layer before you need it. Fin.
